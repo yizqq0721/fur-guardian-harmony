@@ -1,5 +1,6 @@
 import { FG } from '../common/Theme';
 import { Pet } from '../models/Types';
+import { PetsPage } from '../pages/PetsPage';
 import { PetStore } from '../stores/PetStore';
 import { UserStore } from '../stores/UserStore';
 import { Nav } from '../utils/Nav';
@@ -199,7 +200,7 @@ export struct AppShell {
         Tabs({ barPosition: BarPosition.Start, index: this.activeTab }) {
           TabContent() {
             if (this.activeTab === 0) {
-              PlaceholderPage({ title: '我的宠物', description: '宠物列表、头像与档案入口。' })
+              PetsPage()
             }
           }
 

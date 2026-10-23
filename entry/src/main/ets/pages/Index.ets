@@ -1,6 +1,8 @@
 import { AppShell } from '../components/AppShell';
 import { AuthPage } from './AuthPage';
 import { OnboardingPage } from './OnboardingPage';
+import { PetHomePage } from './PetHomePage';
+import { PetProfilePage } from './PetProfilePage';
 import { PlaceholderPage } from './PlaceholderPage';
 
 @Entry
@@ -39,6 +41,22 @@ struct Index {
     NavDestination() {
       if (name === 'Onboarding') {
         OnboardingPage()
+      } else if (name === 'PetHome') {
+        PetHomePage()
+      } else if (name === 'PetProfile') {
+        PetProfilePage()
+      } else if (name === 'Nutrition') {
+        PlaceholderPage({
+          title: '营养方案',
+          description: '主粮、热量与喂食建议。',
+          showBack: true
+        })
+      } else if (name === 'Reminders') {
+        PlaceholderPage({
+          title: '提醒',
+          description: '喂食、遛弯、驱虫与疫苗提醒。',
+          showBack: true
+        })
       } else if (name === 'Settings') {
         PlaceholderPage({
           title: '设置',

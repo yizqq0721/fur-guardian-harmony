@@ -94,6 +94,21 @@ export function ymd(date: Date): string {
   return `${date.getFullYear()}-${pad2(date.getMonth() + 1)}-${pad2(date.getDate())}`;
 }
 
+/** 短日期：5月12日（与前端 M月D日 一致） */
+export function monthDayText(value?: string): string {
+  if (!value) {
+    return '—';
+  }
+  const date: Date = new Date(value.replace(' ', 'T'));
+  if (isNaN(date.getTime())) {
+    if (value.length >= 10) {
+      return `${Number(value.substring(5, 7))}月${Number(value.substring(8, 10))}日`;
+    }
+    return value;
+  }
+  return `${date.getMonth() + 1}月${date.getDate()}日`;
+}
+
 export function hhmm(date: Date): string {
   return `${pad2(date.getHours())}:${pad2(date.getMinutes())}`;
 }
