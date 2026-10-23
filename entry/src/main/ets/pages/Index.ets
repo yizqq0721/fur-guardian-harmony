@@ -6,6 +6,10 @@ import { OnboardingPage } from './OnboardingPage';
 import { PetHomePage } from './PetHomePage';
 import { PetProfilePage } from './PetProfilePage';
 import { PlaceholderPage } from './PlaceholderPage';
+import { ReminderCalendarPage } from './ReminderCalendarPage';
+import { RemindersPage } from './RemindersPage';
+import { ReportDetailPage } from './ReportDetailPage';
+import { ReportsPage } from './ReportsPage';
 
 @Entry
 @Component
@@ -55,9 +59,23 @@ struct Index {
       } else if (name === 'Nutrition') {
         NutritionPage({ petId: paramNumber(param) })
       } else if (name === 'Reminders') {
+        RemindersPage({ initialPetId: paramNumber(param), showBack: true })
+      } else if (name === 'ReminderCalendar') {
+        ReminderCalendarPage({ initialPetId: paramNumber(param) })
+      } else if (name === 'Reports') {
+        ReportsPage()
+      } else if (name === 'ReportDetail') {
+        ReportDetailPage({ reportId: paramNumber(param) })
+      } else if (name === 'Knowledge') {
         PlaceholderPage({
-          title: '提醒',
-          description: '喂食、遛弯、驱虫与疫苗提醒。',
+          title: '知识库',
+          description: 'AI 问答、会话记录与知识来源。',
+          showBack: true
+        })
+      } else if (name === 'Nearby') {
+        PlaceholderPage({
+          title: '周边',
+          description: '附近宠物医院与公园。',
           showBack: true
         })
       } else if (name === 'Settings') {

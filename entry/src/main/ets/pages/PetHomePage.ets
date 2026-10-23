@@ -185,7 +185,7 @@ export struct PetHomePage {
   }
 
   private goReminders(): void {
-    Nav.push('Reminders');
+    Nav.push('Reminders', this.petId);
   }
 
   @Builder

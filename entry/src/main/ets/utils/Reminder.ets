@@ -1,4 +1,15 @@
-import { Reminder } from '../models/Types';
+import { Reminder, ReminderType } from '../models/Types';
+
+const DATED_TYPES: string[] = ['VACCINE', 'DEWORM'];
+
+/** 疫苗、驱虫是「某一天去做」的事件，按用户指定日期提醒一次 */
+export function isDatedType(type: ReminderType): boolean {
+  return DATED_TYPES.includes(type);
+}
+
+export function isDatedReminder(reminder: Reminder): boolean {
+  return reminder.repeatRule === 'ONCE' && reminder.remindDate !== undefined && reminder.remindDate.length > 0;
+}
 
 function anchorDate(value?: string): Date | null {
   if (!value) {

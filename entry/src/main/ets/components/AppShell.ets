@@ -6,6 +6,8 @@ import { PetStore } from '../stores/PetStore';
 import { UserStore } from '../stores/UserStore';
 import { Nav } from '../utils/Nav';
 import { PlaceholderPage } from '../pages/PlaceholderPage';
+import { RemindersPage } from '../pages/RemindersPage';
+import { ReportsPage } from '../pages/ReportsPage';
 import { AppTopBar } from './AppTopBar';
 
 interface NavEntry {
@@ -213,13 +215,13 @@ export struct AppShell {
 
           TabContent() {
             if (this.activeTab === 2) {
-              PlaceholderPage({ title: '提醒', description: '喂食、遛弯、驱虫与疫苗提醒。' })
+              RemindersPage()
             }
           }
 
           TabContent() {
             if (this.activeTab === 3) {
-              PlaceholderPage({ title: '周报', description: '每周体重、体况与喂食合规回顾。' })
+              ReportsPage()
             }
           }
 

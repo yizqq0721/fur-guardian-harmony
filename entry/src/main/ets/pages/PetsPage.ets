@@ -391,7 +391,7 @@ export struct PetsPage {
 
   private goReminders(id: number): void {
     PetStore.setCurrentPet(id);
-    Nav.push('Reminders');
+    Nav.push('Reminders', id);
   }
 
   @Builder
