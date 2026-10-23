@@ -45,7 +45,7 @@ export struct ReminderCalendar {
 
   private monthEvents(): Reminder[] {
     return this.reminders.filter((reminder: Reminder) => {
-      if (!isDatedReminder(reminder) || reminder.remindDate === undefined) {
+      if (!isDatedReminder(reminder) || reminder.remindDate === undefined || reminder.remindDate === null) {
         return false;
       }
       const date: Date = new Date(reminder.remindDate.substring(0, 10).replace(' ', 'T'));
@@ -58,11 +58,12 @@ export struct ReminderCalendar {
 
   private eventsOn(key: string): Reminder[] {
     const list: Reminder[] = this.monthEvents().filter((reminder: Reminder) => {
-      return reminder.remindDate !== undefined && reminder.remindDate.substring(0, 10) === key;
+      return reminder.remindDate !== undefined && reminder.remindDate !== null &&
+        reminder.remindDate.substring(0, 10) === key;
     });
     return list.sort((a: Reminder, b: Reminder) => {
-      const at: string = a.remindTime !== undefined && a.remindTime.length > 0 ? a.remindTime : '99:99';
-      const bt: string = b.remindTime !== undefined && b.remindTime.length > 0 ? b.remindTime : '99:99';
+      const at: string = a.remindTime !== undefined && a.remindTime !== null && a.remindTime.length > 0 ? a.remindTime : '99:99';
+      const bt: string = b.remindTime !== undefined && b.remindTime !== null && b.remindTime.length > 0 ? b.remindTime : '99:99';
       return at.localeCompare(bt);
     });
   }

@@ -60,7 +60,7 @@ export const REPEAT_RULE_OPTIONS: SelectOption[] = [
   { value: 'ONCE', label: '仅一次' },
 ];
 
-function labelOf(options: SelectOption[], value?: string): string {
+function labelOf(options: SelectOption[], value?: string | null): string {
   if (!value) {
     return '';
   }
@@ -88,7 +88,7 @@ export function reminderTypeLabel(value?: ReminderType): string {
   return labelOf(REMINDER_TYPE_OPTIONS, value);
 }
 
-export function repeatRuleLabel(value?: RepeatRule): string {
+export function repeatRuleLabel(value?: RepeatRule | null): string {
   return labelOf(REPEAT_RULE_OPTIONS, value);
 }
 

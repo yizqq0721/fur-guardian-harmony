@@ -260,11 +260,12 @@ export interface Reminder {
   petId: number;
   title: string;
   reminderType: ReminderType;
-  remindTime?: string;
-  relativeMin?: number;
-  remindDate?: string;
-  repeatRule?: RepeatRule;
-  repeatDays?: string;
+  remindTime?: string | null;
+  relativeMin?: number | null;
+  remindDate?: string | null;
+  repeatRule?: RepeatRule | null;
+  repeatDays?: string | null;
+  enabled?: number;
   createdAt?: string;
 }
 

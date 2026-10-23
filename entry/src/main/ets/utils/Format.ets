@@ -7,7 +7,7 @@ export function todayText(): string {
   return `${now.getFullYear()}-${pad2(now.getMonth() + 1)}-${pad2(now.getDate())}`;
 }
 
-export function dateText(value?: string): string {
+export function dateText(value?: string | null): string {
   if (!value) {
     return '—';
   }
@@ -18,7 +18,7 @@ export function dateText(value?: string): string {
   return `${date.getFullYear()}-${pad2(date.getMonth() + 1)}-${pad2(date.getDate())}`;
 }
 
-export function dateTimeText(value?: string): string {
+export function dateTimeText(value?: string | null): string {
   if (!value) {
     return '—';
   }
@@ -29,12 +29,12 @@ export function dateTimeText(value?: string): string {
   return `${pad2(date.getMonth() + 1)}-${pad2(date.getDate())} ${pad2(date.getHours())}:${pad2(date.getMinutes())}`;
 }
 
-export function timeShort(value?: string): string {
+export function timeShort(value?: string | null): string {
   return value && value.length >= 5 ? value.substring(0, 5) : (value ?? '');
 }
 
 /** 生日 → 「N 月龄」/「N 岁 M 个月」，与 Vue utils/format.ts 一致 */
-export function ageText(birthday?: string): string {
+export function ageText(birthday?: string | null): string {
   if (!birthday) {
     return '年龄未知';
   }
@@ -58,7 +58,7 @@ export function ageText(birthday?: string): string {
   return rest > 0 ? `${years} 岁 ${rest} 个月` : `${years} 岁`;
 }
 
-export function fromNow(value?: string): string {
+export function fromNow(value?: string | null): string {
   if (!value) {
     return '—';
   }
@@ -95,7 +95,7 @@ export function ymd(date: Date): string {
 }
 
 /** 短日期：5月12日（与前端 M月D日 一致） */
-export function monthDayText(value?: string): string {
+export function monthDayText(value?: string | null): string {
   if (!value) {
     return '—';
   }

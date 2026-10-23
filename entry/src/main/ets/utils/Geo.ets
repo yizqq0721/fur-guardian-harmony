@@ -1,4 +1,4 @@
-import { abilityAccessCtrl, common, Permissions } from '@kit.AbilityKit';
+import { abilityAccessCtrl, bundleManager, common, Permissions } from '@kit.AbilityKit';
 import { geoLocationManager } from '@kit.LocationKit';
 import { PlacesApi, UserApi } from '../api/Api';
 import { GeoAddress, UserProfile } from '../models/Types';
@@ -71,58 +71,106 @@ export function savedGeo(maxAgeMs: number = 0): GeoPoint | null {
   return point;
 }
 
+function errText(err: Object): string {
+  if (err instanceof Error) {
+    return err.message;
+  }
+  return JSON.stringify(err);
+}
+
+function hasPermission(atManager: abilityAccessCtrl.AtManager, tokenId: number, permission: Permissions): boolean {
+  try {
+    return atManager.checkAccessTokenSync(tokenId, permission) === abilityAccessCtrl.GrantStatus.PERMISSION_GRANTED;
+  } catch (err) {
+    console.warn(`[FG/geo] check ${permission} failed: ${errText(err)}`);
+    return false;
+  }
+}
+
+async function fixOnce(
+  priority: geoLocationManager.LocationRequestPriority,
+  timeoutMs: number
+): Promise<geoLocationManager.Location | null> {
+  const request: geoLocationManager.CurrentLocationRequest = {
+    priority: priority,
+    scenario: geoLocationManager.LocationRequestScenario.DAILY_LIFE_SERVICE,
+    timeoutMs: timeoutMs
+  };
+  try {
+    const location: geoLocationManager.Location = await geoLocationManager.getCurrentLocation(request);
+    console.info(`[FG/geo] fix ok priority=${priority} lat=${location.latitude} lng=${location.longitude} acc=${location.accuracy}`);
+    return location;
+  } catch (err) {
+    console.warn(`[FG/geo] fix failed priority=${priority}: ${errText(err)}`);
+    return null;
+  }
+}
+
 export async function requestGeo(context: common.UIAbilityContext): Promise<GeoPoint> {
   let enabled: boolean = true;
   try {
     enabled = geoLocationManager.isLocationEnabled();
   } catch (err) {
-    console.warn(`check location enabled failed: ${err instanceof Error ? err.message : JSON.stringify(err)}`);
+    console.warn(`[FG/geo] isLocationEnabled failed: ${errText(err)}`);
   }
+  console.info(`[FG/geo] location service enabled=${enabled}`);
   if (!enabled) {
     throw new Error('unavailable');
   }
   const atManager = abilityAccessCtrl.createAtManager();
-  const permissions: Permissions[] = ['ohos.permission.APPROXIMATELY_LOCATION', 'ohos.permission.LOCATION'];
-  let granted: boolean = false;
+  let already: boolean = false;
   try {
-    const result = await atManager.requestPermissionsFromUser(context, permissions);
-    result.authResults.forEach((code: number) => {
-      if (code === 0) {
-        granted = true;
-      }
-    });
+    const tokenId: number =
+      bundleManager.getBundleInfoForSelfSync(bundleManager.BundleFlag.GET_BUNDLE_INFO_WITH_APPLICATION).appInfo.accessTokenId;
+    already = hasPermission(atManager, tokenId, 'ohos.permission.LOCATION') ||
+      hasPermission(atManager, tokenId, 'ohos.permission.APPROXIMATELY_LOCATION');
   } catch (err) {
-    console.warn(`request location permission failed: ${err instanceof Error ? err.message : JSON.stringify(err)}`);
+    console.warn(`[FG/geo] read tokenId failed: ${errText(err)}`);
+  }
+  let granted: boolean = already;
+  if (!granted) {
+    const permissions: Permissions[] = ['ohos.permission.APPROXIMATELY_LOCATION', 'ohos.permission.LOCATION'];
+    try {
+      const result = await atManager.requestPermissionsFromUser(context, permissions);
+      console.info(`[FG/geo] permission results=${JSON.stringify(result.authResults)}`);
+      result.authResults.forEach((code: number) => {
+        if (code === 0) {
+          granted = true;
+        }
+      });
+    } catch (err) {
+      console.warn(`[FG/geo] requestPermissionsFromUser failed: ${errText(err)}`);
+    }
   }
   if (!granted) {
     throw new Error('denied');
   }
-  const request: geoLocationManager.CurrentLocationRequest = {
-    priority: geoLocationManager.LocationRequestPriority.FIRST_FIX,
-    scenario: geoLocationManager.LocationRequestScenario.DAILY_LIFE_SERVICE,
-    timeoutMs: 10000
-  };
-  let location: geoLocationManager.Location | null = null;
-  try {
-    location = await geoLocationManager.getCurrentLocation(request);
-  } catch (err) {
-    console.warn(`get current location failed: ${err instanceof Error ? err.message : JSON.stringify(err)}`);
+  let location: geoLocationManager.Location | null | undefined =
+    await fixOnce(geoLocationManager.LocationRequestPriority.FIRST_FIX, 10000);
+  if (location === null) {
+    location = await fixOnce(geoLocationManager.LocationRequestPriority.ACCURACY, 8000);
+  }
+  if (location === null) {
     try {
       location = geoLocationManager.getLastLocation();
-    } catch (lastErr) {
-      console.warn(`get last location failed: ${lastErr instanceof Error ? lastErr.message : JSON.stringify(lastErr)}`);
+      console.info(`[FG/geo] last location=${location === undefined ? 'undefined' : `${location.latitude},${location.longitude}`}`);
+    } catch (err) {
+      console.warn(`[FG/geo] getLastLocation failed: ${errText(err)}`);
     }
   }
-  if (location === null || (location.latitude === 0 && location.longitude === 0)) {
+  if (location === undefined || location === null || (location.latitude === 0 && location.longitude === 0)) {
     const cached: GeoPoint | null = savedGeo(24 * 60 * 60 * 1000);
     if (cached !== null) {
+      console.info('[FG/geo] fallback to cached point');
       return cached;
     }
+    console.warn('[FG/geo] no fix available (emulator needs injected GPS: hdc shell geo fix <lng> <lat>)');
     throw new Error('timeout');
   }
   const converted: number[] = wgs84ToGcj02(location.longitude, location.latitude);
   saveGeo(converted[1], converted[0]);
   const point: GeoPoint = { lat: converted[1], lng: converted[0], at: Date.now(), accuracy: location.accuracy };
+  console.info(`[FG/geo] converted gcj02=${point.lat},${point.lng}`);
   return point;
 }
 
@@ -138,12 +186,15 @@ export async function locateAndSave(context: common.UIAbilityContext): Promise<G
     return address;
   } catch (err) {
     const reason: string = err instanceof Error ? err.message : '';
+    console.warn(`[FG/geo] locateAndSave failed: ${errText(err)}`);
     if (reason === 'denied') {
       showToast('定位权限被拒绝，请在系统设置中允许访问位置');
     } else if (reason === 'unavailable') {
       showToast('定位服务未开启，请检查系统定位开关');
     } else if (reason === 'timeout') {
       showToast('未获取到定位结果，请检查定位服务或稍后重试');
+    } else {
+      showToast(`定位失败：${reason.length > 0 ? reason : '请稍后重试'}`);
     }
     return null;
   }

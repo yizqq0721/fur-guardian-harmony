@@ -265,17 +265,21 @@ export struct RemindersPage {
     return due.filter((reminder: Reminder) => !doneToday.includes(reminder.id));
   }
 
+  private hasText(value?: string | null): boolean {
+    return value !== undefined && value !== null && value.length > 0;
+  }
+
   private timelineGroups(): TimelineGroup[] {
     const list: Reminder[] = this.filteredRows();
     const timed: Reminder[] = list
-      .filter((reminder: Reminder) => reminder.remindTime !== undefined && reminder.remindTime.length > 0)
+      .filter((reminder: Reminder) => this.hasText(reminder.remindTime))
       .sort((a: Reminder, b: Reminder) => (a.remindTime as string).localeCompare(b.remindTime as string));
     const relative: Reminder[] = list.filter((reminder: Reminder) => {
-      return (reminder.remindTime === undefined || reminder.remindTime.length === 0) &&
+      return !this.hasText(reminder.remindTime) &&
         reminder.relativeMin !== undefined && reminder.relativeMin !== null;
     });
     const unset: Reminder[] = list.filter((reminder: Reminder) => {
-      return (reminder.remindTime === undefined || reminder.remindTime.length === 0) &&
+      return !this.hasText(reminder.remindTime) &&
         (reminder.relativeMin === undefined || reminder.relativeMin === null);
     });
     const groups: TimelineGroup[] = [];
@@ -330,15 +334,15 @@ export struct RemindersPage {
     const today: string = todayText();
     return this.reminders
       .filter((reminder: Reminder) => {
-        return isDatedReminder(reminder) && reminder.remindDate !== undefined &&
+        return isDatedReminder(reminder) && reminder.remindDate !== undefined && reminder.remindDate !== null &&
           reminder.remindDate.substring(0, 10) > today;
       })
       .sort((a: Reminder, b: Reminder) => (a.remindDate as string).localeCompare(b.remindDate as string))
       .slice(0, 5);
   }
 
-  private daysUntil(date?: string): string {
-    if (date === undefined) {
+  private daysUntil(date?: string | null): string {
+    if (date === undefined || date === null) {
       return '';
     }
     const target: Date = this.parseDay(date);
@@ -416,8 +420,8 @@ export struct RemindersPage {
   }
 
   private rowTime(row: Reminder): string {
-    if (row.remindTime !== undefined && row.remindTime.length > 0) {
-      return row.remindTime.substring(0, 5);
+    if (this.hasText(row.remindTime)) {
+      return (row.remindTime as string).substring(0, 5);
     }
     return row.relativeMin !== undefined && row.relativeMin !== null ? '餐后' : '—';
   }
@@ -633,13 +637,15 @@ export struct RemindersPage {
   private openEdit(row: Reminder): void {
     this.editingId = row.id;
     this.timeMode = row.relativeMin !== undefined && row.relativeMin !== null ? 'relative' : 'fixed';
-    this.weekdayChecks = row.repeatDays !== undefined && row.repeatDays.length > 0 ? row.repeatDays.split(',') : [];
+    this.weekdayChecks = this.hasText(row.repeatDays) ? (row.repeatDays as string).split(',') : [];
     this.formPetId = row.petId;
     this.formTitle = row.title;
     this.formType = row.reminderType;
-    this.formRemindTime = row.remindTime !== undefined && row.remindTime.length >= 5 ? row.remindTime.substring(0, 5) : '08:00';
+    this.formRemindTime = this.hasText(row.remindTime) && (row.remindTime as string).length >= 5
+      ? (row.remindTime as string).substring(0, 5) : '08:00';
     this.formRelativeMin = row.relativeMin !== undefined && row.relativeMin !== null ? row.relativeMin : 30;
-    this.formRemindDate = row.remindDate !== undefined && row.remindDate.length >= 10 ? row.remindDate.substring(0, 10) : todayText();
+    this.formRemindDate = this.hasText(row.remindDate) && (row.remindDate as string).length >= 10
+      ? (row.remindDate as string).substring(0, 10) : todayText();
     this.formRepeatRule = row.repeatRule ?? 'DAILY';
     this.drawerVisible = true;
     if (row.reminderType === 'WALK') {
@@ -1235,7 +1241,7 @@ export struct RemindersPage {
           } else {
             Row() {
               FgChip({
-                label: `${this.repeatLabel(row)}${row.repeatDays !== undefined && row.repeatDays.length > 0 ? `（${this.repeatDaysText(row.repeatDays)}）` : ''}`,
+                label: `${this.repeatLabel(row)}${this.hasText(row.repeatDays) ? `（${this.repeatDaysText(row.repeatDays as string)}）` : ''}`,
                 tone: 'default'
               })
             }
@@ -1502,7 +1508,7 @@ export struct RemindersPage {
               .fontSize(FG.textBody)
               .fontWeight(FontWeight.Bold)
               .fontColor(FG.ink)
-            Text(`周${this.weekdayOf(row.remindDate !== undefined ? row.remindDate.substring(0, 10) : '')}`)
+            Text(`周${this.weekdayOf(this.hasText(row.remindDate) ? (row.remindDate as string).substring(0, 10) : '')}`)
               .fontSize(11)
               .fontColor(FG.inkMuted)
               .margin({ top: 2 })
@@ -1518,7 +1524,7 @@ export struct RemindersPage {
               .maxLines(1)
               .textOverflow({ overflow: TextOverflow.Ellipsis })
               .width('100%')
-            Text(`${this.typeLabel(row)} · ${this.petName(row.petId)}${row.remindTime !== undefined ? ` · ${row.remindTime.substring(0, 5)}` : ''}`)
+            Text(`${this.typeLabel(row)} · ${this.petName(row.petId)}${this.hasText(row.remindTime) ? ` · ${(row.remindTime as string).substring(0, 5)}` : ''}`)
               .fontSize(FG.textLabel)
               .fontColor(FG.inkMuted)
               .maxLines(1)

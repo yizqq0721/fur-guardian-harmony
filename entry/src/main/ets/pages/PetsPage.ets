@@ -238,6 +238,10 @@ export struct PetsPage {
     }
   }
 
+  private step(delta: number): void {
+    this.setActive(this.activeIndex + delta);
+  }
+
   private caption(): string {
     if (this.pets.length === 0) {
       return '还没有宠物档案';
@@ -317,7 +321,7 @@ export struct PetsPage {
   }
 
   private timeOf(reminder: Reminder): string {
-    if (reminder.remindTime !== undefined && reminder.remindTime.length >= 5) {
+    if (reminder.remindTime !== undefined && reminder.remindTime !== null && reminder.remindTime.length >= 5) {
       return reminder.remindTime.substring(0, 5);
     }
     return reminder.relativeMin !== undefined && reminder.relativeMin !== null ? '餐后' : '—';
@@ -857,33 +861,65 @@ export struct PetsPage {
   }
 
   @Builder
+  NavArrow(delta: number) {
+    Button({ type: ButtonType.Normal, stateEffect: true }) {
+      Icon({ name: delta < 0 ? 'chevron-left' : 'chevron-right', iconSize: 18, color: FG.inkMuted })
+    }
+    .width(32)
+    .height(32)
+    .padding(0)
+    .borderRadius(16)
+    .backgroundColor(FG.surface)
+    .border({ width: 1, color: FG.line })
+    .enabled(delta < 0 ? this.activeIndex > 0 : this.activeIndex < this.pets.length - 1)
+    .opacity(delta < 0 ? (this.activeIndex > 0 ? 1 : 0.4) : (this.activeIndex < this.pets.length - 1 ? 1 : 0.4))
+    .onClick(() => {
+      this.step(delta);
+    })
+  }
+
+  @Builder
   Pager() {
     Row() {
-      if (this.pets.length > 5) {
-        Text(`${this.activeIndex + 1} / ${this.pets.length}`)
-          .fontFamily(FG.mono)
-          .fontSize(FG.textLabel)
-          .fontColor(FG.inkMuted)
-      } else {
-        ForEach(this.pets, (pet: Pet, index: number) => {
-          Stack() {
-            Column()
-              .width(6)
-              .height(6)
-              .borderRadius(3)
-              .backgroundColor(index === this.activeIndex ? FG.accent : Color.Transparent)
-              .border({ width: 1, color: index === this.activeIndex ? FG.accent : FG.line })
-          }
-          .width(28)
-          .height(28)
-          .onClick(() => {
-            this.setActive(index);
-          })
-        }, (pet: Pet) => `dot-${pet.id}`)
+      if (this.pets.length > 1) {
+        this.NavArrow(-1)
+      }
+
+      Row() {
+        if (this.pets.length > 5) {
+          Text(`${this.activeIndex + 1} / ${this.pets.length}`)
+            .fontFamily(FG.mono)
+            .fontSize(FG.textLabel)
+            .fontColor(FG.inkMuted)
+        } else {
+          ForEach(this.pets, (pet: Pet, index: number) => {
+            Stack() {
+              Column()
+                .width(6)
+                .height(6)
+                .borderRadius(3)
+                .backgroundColor(index === this.activeIndex ? FG.accent : Color.Transparent)
+                .border({ width: 1, color: index === this.activeIndex ? FG.accent : FG.line })
+            }
+            .width(28)
+            .height(28)
+            .onClick(() => {
+              this.setActive(index);
+            })
+          }, (pet: Pet) => `dot-${pet.id}`)
+        }
+      }
+      .layoutWeight(1)
+      .justifyContent(FlexAlign.Center)
+      .alignItems(VerticalAlign.Center)
+
+      if (this.pets.length > 1) {
+        this.NavArrow(1)
       }
     }
     .width('100%')
     .justifyContent(FlexAlign.Center)
+    .alignItems(VerticalAlign.Center)
     .margin({ top: 16 })
   }
 
@@ -927,7 +963,20 @@ export struct PetsPage {
           .padding({ top: 32 })
         } else {
           if (this.activePet() !== undefined) {
-            this.PetCard(this.activePet() as Pet)
+            Column() {
+              this.PetCard(this.activePet() as Pet)
+            }
+            .width('100%')
+            .gesture(
+              PanGesture({ fingers: 1, direction: PanDirection.Horizontal, distance: 12 })
+                .onActionEnd((event: GestureEvent) => {
+                  if (event.offsetX < -40) {
+                    this.step(1);
+                  } else if (event.offsetX > 40) {
+                    this.step(-1);
+                  }
+                })
+            )
           }
           this.Pager()
         }

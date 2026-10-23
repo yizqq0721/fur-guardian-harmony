@@ -108,7 +108,7 @@ export struct PetHomePage {
   }
 
   private timeText(reminder: Reminder): string {
-    if (reminder.remindTime !== undefined && reminder.remindTime.length >= 5) {
+    if (reminder.remindTime !== undefined && reminder.remindTime !== null && reminder.remindTime.length >= 5) {
       return reminder.remindTime.substring(0, 5);
     }
     if (reminder.relativeMin !== undefined && reminder.relativeMin !== null) {
@@ -258,7 +258,7 @@ export struct PetHomePage {
         .textOverflow({ overflow: TextOverflow.Ellipsis })
 
       Row() {
-        if (reminder.remindTime !== undefined && reminder.remindTime.length >= 5) {
+        if (reminder.remindTime !== undefined && reminder.remindTime !== null && reminder.remindTime.length >= 5) {
           Icon({ name: 'clock', iconSize: 12, color: FG.inkMuted })
             .margin({ right: 4 })
         }

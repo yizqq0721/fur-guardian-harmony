@@ -8,10 +8,11 @@ export function isDatedType(type: ReminderType): boolean {
 }
 
 export function isDatedReminder(reminder: Reminder): boolean {
-  return reminder.repeatRule === 'ONCE' && reminder.remindDate !== undefined && reminder.remindDate.length > 0;
+  return reminder.repeatRule === 'ONCE' && reminder.remindDate !== undefined && reminder.remindDate !== null &&
+    reminder.remindDate.length > 0;
 }
 
-function anchorDate(value?: string): Date | null {
+function anchorDate(value?: string | null): Date | null {
   if (!value) {
     return null;
   }
