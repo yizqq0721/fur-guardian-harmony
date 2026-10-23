@@ -1,15 +1,19 @@
 import { AppShell } from '../components/AppShell';
+import { AdminUsersPage } from './AdminUsersPage';
 import { AuthPage } from './AuthPage';
 import { FoodFormPage } from './FoodFormPage';
+import { KnowledgePage } from './KnowledgePage';
+import { NearbyPage } from './NearbyPage';
 import { NutritionPage } from './NutritionPage';
 import { OnboardingPage } from './OnboardingPage';
 import { PetHomePage } from './PetHomePage';
 import { PetProfilePage } from './PetProfilePage';
-import { PlaceholderPage } from './PlaceholderPage';
 import { ReminderCalendarPage } from './ReminderCalendarPage';
 import { RemindersPage } from './RemindersPage';
 import { ReportDetailPage } from './ReportDetailPage';
 import { ReportsPage } from './ReportsPage';
+import { SettingsPage } from './SettingsPage';
+import { UserProfilePage } from './UserProfilePage';
 
 @Entry
 @Component
@@ -67,29 +71,15 @@ struct Index {
       } else if (name === 'ReportDetail') {
         ReportDetailPage({ reportId: paramNumber(param) })
       } else if (name === 'Knowledge') {
-        PlaceholderPage({
-          title: '知识库',
-          description: 'AI 问答、会话记录与知识来源。',
-          showBack: true
-        })
+        KnowledgePage({ initialPrompt: paramString(param), showBack: true })
       } else if (name === 'Nearby') {
-        PlaceholderPage({
-          title: '周边',
-          description: '附近宠物医院与公园。',
-          showBack: true
-        })
+        NearbyPage({ navParam: param, showBack: true })
       } else if (name === 'Settings') {
-        PlaceholderPage({
-          title: '设置',
-          description: '账号、邮件提醒与应用设置。',
-          showBack: true
-        })
+        SettingsPage()
       } else if (name === 'UserProfile') {
-        PlaceholderPage({
-          title: '用户信息',
-          description: '昵称、当前位置与账号概览。',
-          showBack: true
-        })
+        UserProfilePage()
+      } else if (name === 'AdminUsers') {
+        AdminUsersPage()
       }
     }
     .hideTitleBar(true)
@@ -131,4 +121,8 @@ const FG_PAPER: string = '#F7F6F2';
 
 function paramNumber(param: Object): number {
   return typeof param === 'number' ? param as number : 0;
+}
+
+function paramString(param: Object): string {
+  return typeof param === 'string' ? param as string : '';
 }

@@ -13,6 +13,11 @@ export default class EntryAbility extends UIAbility {
     PersistentStorage.persistProp('fg_isAdmin', false);
     PersistentStorage.persistProp('fg_location', '');
     PersistentStorage.persistProp('fg_currentPetId', 0);
+    PersistentStorage.persistProp('fg_geoLat', 0);
+    PersistentStorage.persistProp('fg_geoLng', 0);
+    PersistentStorage.persistProp('fg_geoAt', 0);
+    PersistentStorage.persistProp('fg_inAppNotify', true);
+    PersistentStorage.persistProp('fg_lastChatId', 0);
   }
 
   onDestroy(): void {

@@ -10,5 +10,8 @@
     },{
       "name": "EntryAbility_label",
       "value": "label"
+    },{
+      "name": "location_reason",
+      "value": "用于查询附近宠物医院、散步公园与本地天气"
     }]
 }

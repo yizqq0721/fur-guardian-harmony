@@ -9,6 +9,7 @@ import { Icon } from '../components/Icon';
 import { StatTile } from '../components/StatTile';
 import {
   Food,
+  NearbyNavParam,
   Pet,
   Reminder,
   ReminderForm,
@@ -65,6 +66,7 @@ export struct RemindersPage {
   @StorageLink('fg_pets') pets: Pet[] = [];
   @StorageLink('fg_currentPetId') currentPetId: number = 0;
   @StorageLink('fg_location') @Watch('onLocationChange') location: string = '';
+  @StorageLink('fg_remindersDirty') @Watch('onRemindersDirty') remindersDirty: boolean = false;
   @State private reminders: Reminder[] = [];
   @State private logs: ReminderLog[] = [];
   @State private optimistic: number[] = [];
@@ -120,6 +122,15 @@ export struct RemindersPage {
     this.weather = null;
     this.weatherUnavailable = false;
     this.maybeLoadWeather(false);
+  }
+
+  private onRemindersDirty(): void {
+    if (!this.remindersDirty) {
+      return;
+    }
+    AppStorage.setOrCreate('fg_remindersDirty', false);
+    this.optimistic = [];
+    this.fetchLogs();
   }
 
   private parseDay(value: string): Date {
@@ -570,7 +581,7 @@ export struct RemindersPage {
   }
 
   private goNearby(row: Reminder): void {
-    Nav.push('Nearby', row.id);
+    Nav.push('Nearby', new NearbyNavParam(row.id, row.title, row.petId, 'park'));
   }
 
   private askKnowledge(row: Reminder): void {

@@ -421,6 +421,20 @@ export interface WalkRoute {
   polyline: number[][];
 }
 
+export class NearbyNavParam {
+  reminderId: number = 0;
+  reminderTitle: string = '';
+  petId: number = 0;
+  category: PlaceCategory = 'medical';
+
+  constructor(reminderId: number, reminderTitle: string, petId: number, category: PlaceCategory) {
+    this.reminderId = reminderId;
+    this.reminderTitle = reminderTitle;
+    this.petId = petId;
+    this.category = category;
+  }
+}
+
 export interface SelectOption {
   value: string;
   label: string;

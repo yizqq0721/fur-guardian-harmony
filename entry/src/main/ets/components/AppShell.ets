@@ -1,11 +1,13 @@
 import { FG } from '../common/Theme';
 import { Pet } from '../models/Types';
+import { AdminUsersPage } from '../pages/AdminUsersPage';
 import { FoodsPage } from '../pages/FoodsPage';
+import { KnowledgePage } from '../pages/KnowledgePage';
+import { NearbyPage } from '../pages/NearbyPage';
 import { PetsPage } from '../pages/PetsPage';
 import { PetStore } from '../stores/PetStore';
 import { UserStore } from '../stores/UserStore';
 import { Nav } from '../utils/Nav';
-import { PlaceholderPage } from '../pages/PlaceholderPage';
 import { RemindersPage } from '../pages/RemindersPage';
 import { ReportsPage } from '../pages/ReportsPage';
 import { AppTopBar } from './AppTopBar';
@@ -227,19 +229,19 @@ export struct AppShell {
 
           TabContent() {
             if (this.activeTab === 4) {
-              PlaceholderPage({ title: '知识库', description: 'AI 问答、会话记录与知识来源。' })
+              KnowledgePage()
             }
           }
 
           TabContent() {
             if (this.activeTab === 5) {
-              PlaceholderPage({ title: '周边', description: '附近宠物医院与公园。' })
+              NearbyPage()
             }
           }
 
           TabContent() {
             if (this.activeTab === 6 && this.isAdmin) {
-              PlaceholderPage({ title: '用户管理', description: '管理员用户列表与账号状态。' })
+              AdminUsersPage()
             }
           }
         }

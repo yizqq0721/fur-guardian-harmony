@@ -85,6 +85,8 @@ ICONS.set('brush', ['m9.06 11.9 8.07-8.06a2.85 2.85 0 1 1 4.03 4.03l-8.06 8.08',
 ICONS.set('bath', ['M10 4 8 6', 'M17 19v2', 'M2 12h20', 'M7 19v2', 'M9 5 7.62 3.62A2.12 2.12 0 0 0 4 5v7', 'M2 12h20v4a5 5 0 0 1-5 5H7a5 5 0 0 1-5-5Z'])
 ICONS.set('more-horizontal', ['M5 12h.01', 'M12 12h.01', 'M19 12h.01'])
 ICONS.set('arrow-up-right', ['M7 7h10v10', 'M7 17 17 7'])
+ICONS.set('download', ['M12 15V3', 'M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4', 'm7 10 5 5 5-5'])
+ICONS.set('history', ['M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8', 'M3 3v5h5', 'M12 7v5l4 2'])
 
 export function iconPaths(name: string): string[] {
   return ICONS.get(name) ?? []
