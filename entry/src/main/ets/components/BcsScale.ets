@@ -11,7 +11,7 @@ function silhouette(n: number): string {
 
 @Component
 export struct BcsScale {
-  value: number = 5;
+  @Prop value: number = 5;
   onChange: (value: number) => void = () => {
   };
   private scores: number[] = [1, 2, 3, 4, 5, 6, 7, 8, 9];

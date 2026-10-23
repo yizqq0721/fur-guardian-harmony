@@ -1,5 +1,6 @@
 import { AppShell } from '../components/AppShell';
 import { AuthPage } from './AuthPage';
+import { OnboardingPage } from './OnboardingPage';
 import { PlaceholderPage } from './PlaceholderPage';
 
 @Entry
@@ -37,11 +38,7 @@ struct Index {
   PageMap(name: string) {
     NavDestination() {
       if (name === 'Onboarding') {
-        PlaceholderPage({
-          title: '创建宠物档案',
-          description: '4 步完成宠物基础信息与体况建档。',
-          showBack: true
-        })
+        OnboardingPage()
       } else if (name === 'Settings') {
         PlaceholderPage({
           title: '设置',

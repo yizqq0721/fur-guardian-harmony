@@ -5,9 +5,9 @@ import { Icon } from './Icon';
 @Component
 export struct FgSelect {
   label: string = '';
-  value: string = '';
+  @Prop value: string = '';
   placeholder: string = '请选择';
-  options: SelectOption[] = [];
+  @Prop options: SelectOption[] = [];
   hint: string = '';
   onChange: (value: string) => void = () => {
   };

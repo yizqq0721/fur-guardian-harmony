@@ -13,8 +13,8 @@ const MAX_SIZE: number = 5 * 1024 * 1024;
 
 @Component
 export struct PetAvatarPicker {
-  value: string = '';
-  species: Species = 'dog';
+  @Prop value: string = '';
+  @Prop species: Species = 'dog';
   onChange: (value: string) => void = () => {
   };
   @State private systemOpen: boolean = false;

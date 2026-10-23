@@ -27,7 +27,7 @@ export struct FgInput {
     }
   }
 
-  private borderColor(): string {
+  private borderStroke(): string {
     if (this.error !== '') {
       return FG.danger;
     }
@@ -55,7 +55,7 @@ export struct FgInput {
           .placeholderColor(FG.inkMuted)
           .backgroundColor(FG.surface)
           .borderRadius(FG.radius)
-          .border({ width: 1, color: this.borderColor() })
+          .border({ width: 1, color: this.borderStroke() })
           .padding(12)
           .maxLength(this.maxLength)
           .enabled(this.editable)
@@ -78,7 +78,7 @@ export struct FgInput {
           .placeholderColor(FG.inkMuted)
           .backgroundColor(FG.surface)
           .borderRadius(FG.radius)
-          .border({ width: 1, color: this.borderColor() })
+          .border({ width: 1, color: this.borderStroke() })
           .padding({ left: 12, right: 12 })
           .maxLength(this.maxLength)
           .type(this.password ? InputType.Password : (this.numberOnly ? InputType.Number : InputType.Normal))

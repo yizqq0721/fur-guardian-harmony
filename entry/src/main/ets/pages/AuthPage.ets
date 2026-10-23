@@ -1,6 +1,28 @@
 import { FG } from '../common/Theme';
+import { SourceChip } from '../components/SourceChip';
+import { StatTile } from '../components/StatTile';
 import { ApiError, showToast } from '../utils/Http';
 import { UserStore } from '../stores/UserStore';
+
+class PreviewMetric {
+  label: string;
+  value: string;
+  unit: string;
+  caption: string;
+
+  constructor(label: string, value: string, unit: string, caption: string) {
+    this.label = label;
+    this.value = value;
+    this.unit = unit;
+    this.caption = caption;
+  }
+}
+
+const PREVIEW_METRICS: PreviewMetric[] = [
+  new PreviewMetric('RER 静息能量需求', '234', 'kcal/日', '70 × 5.1^0.75'),
+  new PreviewMetric('MER 每日维持能量', '337', 'kcal/日', '× 1.44 系数'),
+  new PreviewMetric('每日主粮', '79', 'g/日', '≈ 39 g/餐 × 2 餐')
+];
 
 @Component
 export struct AuthPage {
@@ -47,6 +69,7 @@ export struct AuthPage {
     try {
       if (this.mode === 'login') {
         await UserStore.login(this.username, this.password);
+        showToast('登录成功');
       } else {
         await UserStore.register(this.username, this.password, this.nickname);
         await UserStore.login(this.username, this.password);
@@ -55,7 +78,7 @@ export struct AuthPage {
       }
     } catch (err) {
       const error: ApiError = err as ApiError;
-      this.errorMessage = error.message ?? '操作失败，请稍后再试';
+      this.errorMessage = error.message !== undefined && error.message.length > 0 ? error.message : '操作失败，请稍后再试';
       if (this.mode === 'login') {
         showToast(this.errorMessage);
       }
@@ -71,7 +94,68 @@ export struct AuthPage {
       .fontWeight(FontWeight.Medium)
       .fontColor(FG.inkMuted)
       .letterSpacing(0.4)
-      .margin({ bottom: 4 })
+      .margin({ bottom: 6 })
+  }
+
+  @Builder
+  PreviewPanel() {
+    Column() {
+      Text('方案预览 · 示例数据')
+        .fontSize(FG.textLabel)
+        .fontWeight(FontWeight.Medium)
+        .fontColor(FG.inkMuted)
+        .letterSpacing(0.5)
+        .width('100%')
+
+      Text('玩具贵宾 · 5.1 kg · BCS 5/9 · 已绝育')
+        .fontFamily(FG.mono)
+        .fontSize(12)
+        .lineHeight(18)
+        .fontColor(FG.inkMuted)
+        .width('100%')
+        .margin({ top: 8, bottom: 16 })
+
+      ForEach(PREVIEW_METRICS, (item: PreviewMetric, index: number) => {
+        if (index > 0) {
+          Column()
+            .width('100%')
+            .height(1)
+            .backgroundColor(FG.line)
+            .margin({ top: 16, bottom: 16 })
+        }
+        StatTile({
+          label: item.label,
+          value: item.value,
+          unit: item.unit,
+          caption: item.caption
+        })
+      }, (item: PreviewMetric) => item.label)
+
+      Column()
+        .width('100%')
+        .height(1)
+        .backgroundColor(FG.line)
+        .margin({ top: 16, bottom: 16 })
+
+      Column() {
+        SourceChip({ label: 'GB/T 31216-2014' })
+        Text('逐项判定该粮是否达标')
+          .fontSize(FG.textLabel)
+          .lineHeight(18)
+          .fontColor(FG.inkMuted)
+          .margin({ top: 8 })
+      }
+      .width('100%')
+      .alignItems(HorizontalAlign.Start)
+    }
+    .width('100%')
+    .constraintSize({ maxWidth: 420 })
+    .alignItems(HorizontalAlign.Start)
+    .padding(FG.s4)
+    .backgroundColor(FG.surface)
+    .border({ width: 1, color: FG.line })
+    .borderRadius(FG.radius)
+    .margin({ top: 32 })
   }
 
   build() {
@@ -116,7 +200,7 @@ export struct AuthPage {
           .borderRadius(FG.radius)
           .border({ width: 1, color: FG.line })
           .padding({ left: 12, right: 12 })
-          .margin({ bottom: 12 })
+          .margin({ bottom: 16 })
           .onChange((value: string) => {
             this.username = value;
           })
@@ -133,7 +217,7 @@ export struct AuthPage {
             .borderRadius(FG.radius)
             .border({ width: 1, color: FG.line })
             .padding({ left: 12, right: 12 })
-            .margin({ bottom: 12 })
+            .margin({ bottom: 16 })
             .onChange((value: string) => {
               this.nickname = value;
             })
@@ -163,15 +247,16 @@ export struct AuthPage {
             .fontFamily(FG.mono)
             .fontSize(12)
             .fontColor(FG.inkMuted)
-            .margin({ bottom: 12 })
+            .margin({ bottom: 16 })
         }
 
         if (this.errorMessage.length > 0) {
           Text(this.errorMessage)
             .fontSize(FG.textLabel)
+            .lineHeight(19)
             .fontColor(FG.danger)
             .width('100%')
-            .margin({ bottom: 8 })
+            .margin({ top: 4, bottom: 12 })
         }
 
         Button({ type: ButtonType.Normal, stateEffect: true }) {
@@ -198,12 +283,16 @@ export struct AuthPage {
             .fontWeight(FontWeight.Medium)
             .fontColor(FG.accent)
             .margin({ left: 4 })
-            .padding({ top: 10, bottom: 10 })
+            .height(44)
+            .padding({ left: 4, right: 4 })
             .onClick(() => {
               this.toggleMode();
             })
         }
-        .margin({ top: 8 })
+        .alignItems(VerticalAlign.Center)
+        .margin({ top: 12 })
+
+        this.PreviewPanel()
       }
       .width('100%')
       .alignItems(HorizontalAlign.Start)

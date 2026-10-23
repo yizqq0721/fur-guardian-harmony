@@ -35,7 +35,7 @@ export struct FgButton {
     return FG.ink;
   }
 
-  private borderColor(): string {
+  private borderStroke(): string {
     return this.variant === 'secondary' ? FG.lineStrong : '#00000000';
   }
 
@@ -63,7 +63,7 @@ export struct FgButton {
     .padding({ left: this.small ? 10 : 16, right: this.small ? 10 : 16 })
     .borderRadius(this.small ? 6 : FG.radius)
     .backgroundColor(this.bg())
-    .border({ width: 1, color: this.borderColor() })
+    .border({ width: 1, color: this.borderStroke() })
     .enabled(!this.disabled && !this.loading)
     .opacity(this.disabled ? 0.55 : 1)
     .onClick(() => {
