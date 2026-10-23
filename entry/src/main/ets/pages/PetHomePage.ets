@@ -181,7 +181,7 @@ export struct PetHomePage {
   }
 
   private goNutrition(): void {
-    Nav.push('Nutrition');
+    Nav.push('Nutrition', this.petId);
   }
 
   private goReminders(): void {

@@ -171,6 +171,7 @@ export interface Food {
   ingredients?: string;
   nutrients?: FoodNutrients;
   createdAt?: string;
+  updatedAt?: string;
 }
 
 export interface FoodForm {
@@ -216,7 +217,7 @@ export interface NutritionPlan {
   underweight: boolean;
   weightAdvice?: string | null;
   validations: NutrientValidation[];
-  warnings: string[];
+  warnings?: string[];
 }
 
 export interface RecipeSource {

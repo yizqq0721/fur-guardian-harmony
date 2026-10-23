@@ -12,6 +12,7 @@ export struct FgButton {
   small: boolean = false;
   disabled: boolean = false;
   loading: boolean = false;
+  fillWidth: boolean = false;
   onTap: () => void = () => {
   };
 
@@ -60,6 +61,7 @@ export struct FgButton {
       .alignItems(VerticalAlign.Center)
     }
     .height(44)
+    .constraintSize({ minWidth: this.fillWidth ? '100%' : 0 })
     .padding({ left: this.small ? 10 : 16, right: this.small ? 10 : 16 })
     .borderRadius(this.small ? 6 : FG.radius)
     .backgroundColor(this.bg())

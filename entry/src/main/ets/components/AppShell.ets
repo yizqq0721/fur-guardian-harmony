@@ -1,5 +1,6 @@
 import { FG } from '../common/Theme';
 import { Pet } from '../models/Types';
+import { FoodsPage } from '../pages/FoodsPage';
 import { PetsPage } from '../pages/PetsPage';
 import { PetStore } from '../stores/PetStore';
 import { UserStore } from '../stores/UserStore';
@@ -206,7 +207,7 @@ export struct AppShell {
 
           TabContent() {
             if (this.activeTab === 1) {
-              PlaceholderPage({ title: '食品库', description: '公共食品与自建食品的检索、录入和营养标签。' })
+              FoodsPage()
             }
           }
 

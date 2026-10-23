@@ -1,5 +1,7 @@
 import { AppShell } from '../components/AppShell';
 import { AuthPage } from './AuthPage';
+import { FoodFormPage } from './FoodFormPage';
+import { NutritionPage } from './NutritionPage';
 import { OnboardingPage } from './OnboardingPage';
 import { PetHomePage } from './PetHomePage';
 import { PetProfilePage } from './PetProfilePage';
@@ -28,6 +30,9 @@ struct Index {
     if (AppStorage.get<boolean>('fg_pendingOnboarding') === undefined) {
       AppStorage.setOrCreate('fg_pendingOnboarding', false);
     }
+    if (AppStorage.get<boolean>('fg_foodsDirty') === undefined) {
+      AppStorage.setOrCreate('fg_foodsDirty', false);
+    }
   }
 
   private onTokenChange(): void {
@@ -37,7 +42,7 @@ struct Index {
   }
 
   @Builder
-  PageMap(name: string) {
+  PageMap(name: string, param: Object) {
     NavDestination() {
       if (name === 'Onboarding') {
         OnboardingPage()
@@ -45,12 +50,10 @@ struct Index {
         PetHomePage()
       } else if (name === 'PetProfile') {
         PetProfilePage()
+      } else if (name === 'FoodForm') {
+        FoodFormPage({ editId: paramNumber(param) })
       } else if (name === 'Nutrition') {
-        PlaceholderPage({
-          title: '营养方案',
-          description: '主粮、热量与喂食建议。',
-          showBack: true
-        })
+        NutritionPage({ petId: paramNumber(param) })
       } else if (name === 'Reminders') {
         PlaceholderPage({
           title: '提醒',
@@ -107,3 +110,7 @@ struct Index {
 }
 
 const FG_PAPER: string = '#F7F6F2';
+
+function paramNumber(param: Object): number {
+  return typeof param === 'number' ? param as number : 0;
+}

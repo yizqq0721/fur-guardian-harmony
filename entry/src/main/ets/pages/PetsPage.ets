@@ -386,7 +386,7 @@ export struct PetsPage {
 
   private goNutrition(id: number): void {
     PetStore.setCurrentPet(id);
-    Nav.push('Nutrition');
+    Nav.push('Nutrition', id);
   }
 
   private goReminders(id: number): void {
