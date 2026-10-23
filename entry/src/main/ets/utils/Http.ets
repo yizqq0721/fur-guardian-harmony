@@ -127,6 +127,68 @@ export async function apiRequest<T>(
   }
 }
 
+/** multipart 上传（头像等），由 http 模块自动生成 boundary */
+export async function apiUpload<T>(
+  path: string,
+  data: ArrayBuffer,
+  fileName: string,
+  contentType: string
+): Promise<T> {
+  const httpRequest: http.HttpRequest = http.createHttp();
+  try {
+    const header: Record<string, string> = {};
+    const token: string = getToken();
+    if (token.length > 0) {
+      header['Authorization'] = `Bearer ${token}`;
+    }
+
+    const options: http.HttpRequestOptions = {
+      method: http.RequestMethod.POST,
+      header: header,
+      expectDataType: http.HttpDataType.STRING,
+      connectTimeout: 15000,
+      readTimeout: 60000,
+      multiFormDataList: [
+        {
+          name: 'file',
+          contentType: contentType,
+          remoteFileName: fileName,
+          data: data
+        }
+      ]
+    };
+
+    const response: http.HttpResponse = await httpRequest.request(AppConfig.API_BASE_URL + path, options);
+    const statusCode: number = Number(response.responseCode);
+    const raw: string = response.result as string;
+
+    if (statusCode === 401) {
+      handleUnauthorized();
+      throw new ApiError(401, '登录已过期，请重新登录');
+    }
+    if (statusCode < 200 || statusCode >= 300) {
+      showToast('上传失败，请稍后再试');
+      throw new ApiError(statusCode, `HTTP ${statusCode}`);
+    }
+
+    const payload: ApiResult<T> = JSON.parse(raw) as ApiResult<T>;
+    if (payload.code === 200) {
+      return payload.data;
+    }
+    showToast(payload.message && payload.message.length > 0 ? payload.message : '上传失败');
+    throw new ApiError(payload.code, payload.message);
+  } catch (err) {
+    if (err instanceof ApiError) {
+      throw err;
+    }
+    console.error(`upload ${path} failed: ${JSON.stringify(err)}`);
+    showToast('上传失败，请检查网络');
+    throw new ApiError(-1, '上传失败');
+  } finally {
+    httpRequest.destroy();
+  }
+}
+
 export function get<T>(path: string, silent: boolean = false): Promise<T> {
   return apiRequest<T>(http.RequestMethod.GET, path, null, silent);
 }

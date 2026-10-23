@@ -36,7 +36,7 @@ import {
   WeightForm,
   WeightLog
 } from '../models/Types';
-import { del, get, Params, post, put } from '../utils/Http';
+import { apiUpload, del, get, Params, post, put } from '../utils/Http';
 
 export class AuthApi {
   static register(data: RegisterParams): Promise<number> {
@@ -396,4 +396,14 @@ export class AdminApi {
 
 export interface StatusBody {
   status: number;
+}
+
+export interface AvatarUploadResult {
+  url: string;
+}
+
+export class UploadApi {
+  static avatar(data: ArrayBuffer, fileName: string, contentType: string): Promise<AvatarUploadResult> {
+    return apiUpload<AvatarUploadResult>('/api/upload/avatar', data, fileName, contentType);
+  }
 }

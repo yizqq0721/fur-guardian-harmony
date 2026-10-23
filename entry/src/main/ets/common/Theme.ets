@@ -21,7 +21,7 @@ export class FG {
 
   static readonly textLabel: number = 12;
   static readonly textBody: number = 14;
-  static readonly textLead: number = 16;
+  static readonly textLead: number = 15;
   static readonly textH3: number = 18;
   static readonly textH2: number = 24;
   static readonly textH1: number = 28;
