@@ -246,6 +246,22 @@ export struct ReportDetailPage {
     return this.conclusion !== null ? ((this.conclusion as ReportConclusion).rules ?? []) : [];
   }
 
+  private ruleSuggestion(rule: ReportRule): string {
+    return rule.suggestion !== undefined && rule.suggestion !== null ? rule.suggestion : '';
+  }
+
+  private ruleDetail(rule: ReportRule): string {
+    return rule.detail !== undefined && rule.detail !== null ? rule.detail : '';
+  }
+
+  private conclusionSummary(): string {
+    if (this.conclusion === null) {
+      return '';
+    }
+    const summary: string = (this.conclusion as ReportConclusion).summary;
+    return summary !== undefined && summary !== null ? summary : '';
+  }
+
   private triggeredRules(): ReportRule[] {
     return this.rules().filter((rule: ReportRule) => rule.triggered);
   }
@@ -259,7 +275,7 @@ export struct ReportDetailPage {
   }
 
   private hasWarn(): boolean {
-    return this.triggeredRules().some((rule: ReportRule) => rule.severity === 'warn');
+    return this.triggeredRules().some((rule: ReportRule) => rule.severity === 'warn' || rule.severity === 'warning');
   }
 
   private aggregateColor(): string {
@@ -341,16 +357,16 @@ export struct ReportDetailPage {
           .fontWeight(muted ? FontWeight.Normal : FontWeight.Bold)
           .fontColor(muted ? FG.inkMuted : FG.ink)
           .width('100%')
-        if (!muted && rule.suggestion.length > 0) {
-          Text(rule.suggestion)
+        if (!muted && this.ruleSuggestion(rule).length > 0) {
+          Text(this.ruleSuggestion(rule))
             .fontSize(FG.textBody)
             .lineHeight(23)
             .fontColor('#3A3E44')
             .width('100%')
             .margin({ top: 4 })
         }
-        if (rule.detail.length > 0) {
-          Text(rule.detail)
+        if (this.ruleDetail(rule).length > 0) {
+          Text(this.ruleDetail(rule))
             .fontSize(FG.textLabel)
             .lineHeight(19)
             .fontColor(FG.inkMuted)
@@ -555,8 +571,8 @@ export struct ReportDetailPage {
             }, (rule: ReportRule) => `rule-off-${rule.ruleId}`)
           }
 
-          if (this.conclusion !== null && (this.conclusion as ReportConclusion).summary.length > 0) {
-            Text((this.conclusion as ReportConclusion).summary)
+          if (this.conclusionSummary().length > 0) {
+            Text(this.conclusionSummary())
               .fontSize(FG.textBody)
               .lineHeight(25)
               .fontColor(FG.ink)

@@ -1,5 +1,4 @@
 import { FG } from '../common/Theme';
-import { showToast } from '../utils/Http';
 import { Icon } from './Icon';
 import { PetSwitcher } from './PetSwitcher';
 import { WeatherWidget } from './WeatherWidget';
@@ -37,9 +36,6 @@ export struct AppTopBar {
 
         WeatherWidget({
           compact: true,
-          onNeedLocate: () => {
-            showToast('请先在「用户信息」中设置所在城市');
-          },
           onOpenReminders: () => {
             AppStorage.setOrCreate('fg_activeTab', 2);
           }

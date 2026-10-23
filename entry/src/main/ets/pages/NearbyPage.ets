@@ -93,6 +93,9 @@ export struct NearbyPage {
       } else if (reason === 'unavailable') {
         this.geoStatus = 'error';
         this.geoMessage = '定位服务未开启，请检查系统定位开关后重试。';
+      } else if (reason === 'timeout') {
+        this.geoStatus = 'error';
+        this.geoMessage = '未获取到定位结果，请确认已开启定位服务，或稍后重试。';
       } else {
         this.geoStatus = 'error';
         this.geoMessage = '定位失败，请检查系统定位服务或网络后重试。';

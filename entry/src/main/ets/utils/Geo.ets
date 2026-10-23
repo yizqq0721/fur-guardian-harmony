@@ -72,18 +72,28 @@ export function savedGeo(maxAgeMs: number = 0): GeoPoint | null {
 }
 
 export async function requestGeo(context: common.UIAbilityContext): Promise<GeoPoint> {
-  if (!geoLocationManager.isLocationEnabled()) {
+  let enabled: boolean = true;
+  try {
+    enabled = geoLocationManager.isLocationEnabled();
+  } catch (err) {
+    console.warn(`check location enabled failed: ${err instanceof Error ? err.message : JSON.stringify(err)}`);
+  }
+  if (!enabled) {
     throw new Error('unavailable');
   }
   const atManager = abilityAccessCtrl.createAtManager();
   const permissions: Permissions[] = ['ohos.permission.APPROXIMATELY_LOCATION', 'ohos.permission.LOCATION'];
-  const result = await atManager.requestPermissionsFromUser(context, permissions);
   let granted: boolean = false;
-  result.authResults.forEach((code: number) => {
-    if (code === 0) {
-      granted = true;
-    }
-  });
+  try {
+    const result = await atManager.requestPermissionsFromUser(context, permissions);
+    result.authResults.forEach((code: number) => {
+      if (code === 0) {
+        granted = true;
+      }
+    });
+  } catch (err) {
+    console.warn(`request location permission failed: ${err instanceof Error ? err.message : JSON.stringify(err)}`);
+  }
   if (!granted) {
     throw new Error('denied');
   }
@@ -92,7 +102,24 @@ export async function requestGeo(context: common.UIAbilityContext): Promise<GeoP
     scenario: geoLocationManager.LocationRequestScenario.DAILY_LIFE_SERVICE,
     timeoutMs: 10000
   };
-  const location: geoLocationManager.Location = await geoLocationManager.getCurrentLocation(request);
+  let location: geoLocationManager.Location | null = null;
+  try {
+    location = await geoLocationManager.getCurrentLocation(request);
+  } catch (err) {
+    console.warn(`get current location failed: ${err instanceof Error ? err.message : JSON.stringify(err)}`);
+    try {
+      location = geoLocationManager.getLastLocation();
+    } catch (lastErr) {
+      console.warn(`get last location failed: ${lastErr instanceof Error ? lastErr.message : JSON.stringify(lastErr)}`);
+    }
+  }
+  if (location === null || (location.latitude === 0 && location.longitude === 0)) {
+    const cached: GeoPoint | null = savedGeo(24 * 60 * 60 * 1000);
+    if (cached !== null) {
+      return cached;
+    }
+    throw new Error('timeout');
+  }
   const converted: number[] = wgs84ToGcj02(location.longitude, location.latitude);
   saveGeo(converted[1], converted[0]);
   const point: GeoPoint = { lat: converted[1], lng: converted[0], at: Date.now(), accuracy: location.accuracy };
@@ -114,7 +141,9 @@ export async function locateAndSave(context: common.UIAbilityContext): Promise<G
     if (reason === 'denied') {
       showToast('定位权限被拒绝，请在系统设置中允许访问位置');
     } else if (reason === 'unavailable') {
-      showToast('定位失败，请检查系统定位服务或网络');
+      showToast('定位服务未开启，请检查系统定位开关');
+    } else if (reason === 'timeout') {
+      showToast('未获取到定位结果，请检查定位服务或稍后重试');
     }
     return null;
   }

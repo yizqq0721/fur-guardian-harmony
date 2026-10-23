@@ -315,9 +315,9 @@ export interface ReportRule {
   ruleId: string;
   ruleName: string;
   triggered: boolean;
-  severity: 'info' | 'warn' | 'danger';
-  suggestion: string;
-  detail: string;
+  severity: string;
+  suggestion?: string | null;
+  detail?: string | null;
 }
 
 export interface ReportConclusion {

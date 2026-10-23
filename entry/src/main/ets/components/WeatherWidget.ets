@@ -1,6 +1,8 @@
+import { common } from '@kit.AbilityKit';
 import { WeatherApi } from '../api/Api';
 import { FG } from '../common/Theme';
 import { WeatherToday } from '../models/Types';
+import { GeoPoint, locateAndSave, savedGeo } from '../utils/Geo';
 import { Icon } from './Icon';
 
 @Component
@@ -10,10 +12,8 @@ export struct WeatherWidget {
   @State private loading: boolean = false;
   @State private unavailable: boolean = false;
   @State private panelOpen: boolean = false;
-  locating: boolean = false;
+  @State private locating: boolean = false;
   compact: boolean = false;
-  onNeedLocate: () => void = () => {
-  };
   onOpenReminders: () => void = () => {
   };
   private timer: number = -1;
@@ -38,6 +38,19 @@ export struct WeatherWidget {
     this.loadWeather();
   }
 
+  private async locate(): Promise<void> {
+    if (this.locating) {
+      return;
+    }
+    this.locating = true;
+    try {
+      const context: common.UIAbilityContext = getContext(this) as common.UIAbilityContext;
+      await locateAndSave(context);
+    } finally {
+      this.locating = false;
+    }
+  }
+
   private async loadWeather(): Promise<void> {
     if (this.location.length === 0) {
       this.weather = null;
@@ -49,7 +62,10 @@ export struct WeatherWidget {
     }
     this.loading = true;
     try {
-      this.weather = await WeatherApi.today();
+      const point: GeoPoint | null = savedGeo(24 * 60 * 60 * 1000);
+      this.weather = point !== null
+        ? await WeatherApi.today(point.lat, point.lng)
+        : await WeatherApi.today();
       this.unavailable = this.weather === null;
     } catch (err) {
       this.weather = null;
@@ -147,7 +163,7 @@ export struct WeatherWidget {
             .margin({ left: 3 })
         }
         .onClick(() => {
-          this.onNeedLocate();
+          this.locate();
         })
       }
       .width('100%')
@@ -266,7 +282,7 @@ export struct WeatherWidget {
       .border({ width: 1, color: FG.line })
       .enabled(!this.locating)
       .onClick(() => {
-        this.onNeedLocate();
+        this.locate();
       })
     } else {
       Button({ type: ButtonType.Normal, stateEffect: true }) {
